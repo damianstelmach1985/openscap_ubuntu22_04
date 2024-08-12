@@ -85,7 +85,7 @@ done < "$input_file"
 mv "$temp_file" "$input_file"
 
 echo -e '\nINFO: Konfiguracja profili wyłączająca wszystkie inne niż te przeznaczone dla systemu Ubuntu 22.04 zakończona.' 
-sleep 1
+sleep 3
 echo -e '\nINFO: Za chwilę rozpoczenie się kompilacja plików źródłowych...\n'
 sleep 3
 
@@ -99,7 +99,7 @@ sleep 2
 
 # Utworzenie katalogu i przekopiowanie do niego pliku potrzebnego do audytu
 mkdir -p /usr/local/share/xml/scap/ssg/content
-cp /root/content/build/ssg-ubuntu2204-ds.xml /usr/local/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+cp /root/openscap_ubuntu22_04/content/build/ssg-ubuntu2204-ds.xml /usr/local/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
 
 sleep 1
 
