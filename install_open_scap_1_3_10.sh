@@ -93,17 +93,9 @@ sleep 3
 make
 
 echo -e '\nINFO: Profile SSG skompilowane i gotowe do pracy. '
-sleep 3
-echo -e '\nINFO: Za chwilę rozpocznie się kopiowanie plików do odpowiednich lokalizacji...'
 sleep 2
 
-# Utworzenie katalogu i przekopiowanie do niego pliku potrzebnego do audytu
-mkdir -p /usr/local/share/xml/scap/ssg/content
-cp /root/openscap_ubuntu22_04/content/build/ssg-ubuntu2204-ds.xml /usr/local/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
-
-sleep 1
-
 # Informacja o zakończeniu
-echo -e "\nINFO: Zrobione. OpenSCAP w wersji 1.3.10 został poprawnie zainstalowany.\n"
+echo -e "\nINFO: Zrobione. OpenSCAP Security Guide w wersji 1.3.10 został poprawnie zainstalowany.\n"
 
 sleep 1
