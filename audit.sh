@@ -239,4 +239,6 @@ chmod 0640 /etc/audit/rules.d/*.rules
 # restart usługi
 systemctl restart auditd.service
 
-echo -e "\nPliki .rules zostały utworzone i wypełnione regułami, dokonano zmiany w pliku etc/audit/auditd.conf."
+echo -e "\nPliki .rules zostały utworzone i wypełnione regułami, dokonano zmiany w pliku etc/audit/auditd.conf.\n"
+
+sleep 1
