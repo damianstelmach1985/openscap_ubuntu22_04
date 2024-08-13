@@ -5561,26 +5561,38 @@ fi
 
 ) # END fix for 'xccdf_org.ssgproject.content_rule_auditd_offload_logs'
 
+# Skrypty dodatkowe: Chrony, smartCARD, uprawnienia do logów AUDIT
+
+# Skrypt 1 Konfiguracyjny Chrony
+
+# Sprawdzenie, czy skrypt jest uruchamiany jako root
 if [ "$(id -u)" -ne "0" ]; then
     echo "Ten skrypt musi być uruchamiany jako root." 1>&2
     exit 1
 fi
 
-# Skrypty dodatkowe Chrony, smartCARD, uprawnienia do logów AUDIT
+# Plik konfiguracyjny Chrony
+CONFIG_FILE="/etc/chrony/chrony.conf"
+TEMP_FILE=$(mktemp)
 
-# Skrypt 1 Konfiguracyjny Chrony
-CONFIG_FILE=" /etc/chrony/chrony.conf"
+# Dyrektywa do dodania
 MAXPOLL_ENTRY="maxpoll 16"
 
-echo "Dodawanie wpisu '$MAXPOLL_ENTRY' do $CONFIG_FILE..."
+# Przetwarzanie pliku konfiguracyjnego
+while IFS= read -r line; do
+    if [[ "$line" =~ ^pool ]]; then
+        # Dodaj maxpoll 16 na końcu linii zaczynającej się od pool
+        # Usuń istniejące maxsources, jeśli występuje
+        line=$(echo "$line" | sed -e 's/maxsources [0-9]*//g')
+        echo "$line $MAXPOLL_ENTRY" >> "$TEMP_FILE"
+    else
+        # Zachowaj inne linie bez zmian
+        echo "$line" >> "$TEMP_FILE"
+    fi
+done < "$CONFIG_FILE"
 
-# Sprawdzenie, czy wpis już istnieje
-if grep -q "$MAXPOLL_ENTRY" "$CONFIG_FILE"; then
-    echo "Wpis '$MAXPOLL_ENTRY' już istnieje w $CONFIG_FILE."
-else
-    echo "$MAXPOLL_ENTRY" >> "$CONFIG_FILE"
-    echo "Wpis został dodany do $CONFIG_FILE."
-fi
+# Zamień oryginalny plik konfiguracyjny na zmodyfikowany plik
+mv "$TEMP_FILE" "$CONFIG_FILE"
 
 # Restartowanie usługi chronyd, aby zastosować zmiany
 echo "Restartowanie usługi chronyd..."
