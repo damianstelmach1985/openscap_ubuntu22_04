@@ -5598,7 +5598,7 @@ fi
 # BEGIN extra fix (3 / 3) for 'xccdf_org.ssgproject.content_rule_file_permissions_var_log' and 'xccdf_org.ssgproject.content_rule_directory_permissions_var_log_audit'
 ###############################################################################
 
-chmod 0750 /var/log/audit
+chmod 0700 /var/log/audit
 chmod 0750 /var/log
 
 echo -e "\nFixy wdrożone"
