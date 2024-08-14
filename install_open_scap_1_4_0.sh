@@ -1,6 +1,6 @@
 #!/bin/bash
 sleep 1
-echo -e '\nINFO: Skrypt instalacyjny OpenSCAP w wersji 1.3.10 zostanie za chwilę uruchomiony...'
+echo -e '\nINFO: Skrypt instalacyjny OpenSCAP w wersji 1.4.0 zostanie za chwilę uruchomiony...'
 
 sleep 2
 echo -e '\nINFO: Proces rozpczenie się od aktualizacji pakietów w repozytoriach, a następnie zainstalowane zostaną potrzebne do działania programu zależości...\n'
@@ -19,9 +19,9 @@ echo -e '\nINFO: Za chwilę rozpocznie się pobieranie plików źródłowych Ope
 sleep 3
 
 # Pobranie i rozpakowanie źródeł OpenSCAP
-wget https://github.com/OpenSCAP/openscap/releases/download/1.3.10/openscap-1.3.10.tar.gz
-tar -xvzf openscap-1.3.10.tar.gz
-cd openscap-1.3.10
+wget https://github.com/OpenSCAP/openscap/releases/download/1.4.0/openscap-1.4.0.tar.gz
+tar -xvzf openscap-1.4.0.tar.gz
+cd openscap-1.4.0
 
 echo -e '\nINFO: Pliki źródłowe OpenSCAP pobrane i rozpakowane.'
 sleep 3 
@@ -85,7 +85,7 @@ done < "$input_file"
 mv "$temp_file" "$input_file"
 
 echo -e '\nINFO: Konfiguracja profili wyłączająca wszystkie inne niż te przeznaczone dla systemu Ubuntu 22.04 zakończona.' 
-sleep 3
+sleep 1
 echo -e '\nINFO: Za chwilę rozpoczenie się kompilacja plików źródłowych...\n'
 sleep 3
 
@@ -93,9 +93,17 @@ sleep 3
 make
 
 echo -e '\nINFO: Profile SSG skompilowane i gotowe do pracy. '
+sleep 3
+echo -e '\nINFO: Za chwilę rozpocznie się kopiowanie plików do odpowiednich lokalizacji...'
 sleep 2
 
+# Utworzenie katalogu i przekopiowanie do niego pliku potrzebnego do audytu
+mkdir -p /usr/local/share/xml/scap/ssg/content
+cp /root/content/build/ssg-ubuntu2204-ds.xml /usr/local/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+
+sleep 1
+
 # Informacja o zakończeniu
-echo -e "\nINFO: Zrobione. OpenSCAP Security Guide w wersji 1.3.10 został poprawnie zainstalowany.\n"
+echo -e "\nINFO: Zrobione. OpenSCAP w wersji 1.4.0 został poprawnie zainstalowany.\n"
 
 sleep 1
