@@ -4544,9 +4544,9 @@ fi
 ) # END fix for 'xccdf_org.ssgproject.content_rule_grub2_audit_backlog_limit_argument'
 
 ###############################################################################
-# BEGIN extra fix (1 / 2) for 'xccdf_org.ssgproject.content_rule_socket_systemd-journal-remote_disabled'
+# BEGIN extra fix (1 / 4) for 'xccdf_org.ssgproject.content_rule_socket_systemd-journal-remote_disabled'
 ###############################################################################
-(>&2 echo "Remediating extra rule 1/2: 'xccdf_org.ssgproject.content_rule_socket_systemd-journal-remote_disabled'"); (
+(>&2 echo "Remediating extra rule: 'rule_socket_systemd-journal-remote_disabled'"); (
 # Remediation is applicable only in certain platforms
 if [ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ]; then
 
@@ -4565,7 +4565,7 @@ fi
 ) # END fix for 'xccdf_org.ssgproject.content_rule_socket_systemd-journal-remote_disabled'
 
 ###############################################################################
-# BEGIN extra fix (2 / 2) for '	xccdf_org.ssgproject.content_rule_sshd_limit_user_access'
+# BEGIN extra fix (2 / 4) for ' xccdf_org.ssgproject.content_rule_sshd_limit_user_access'
 ###############################################################################
 (>&2 echo "Remediating rule: 'allow_users_in_sshd_config'"); (
 # Remediation is applicable only in certain environments
@@ -4586,3 +4586,77 @@ else
 fi
 
 ) # END fix for 'xccdf_org.ssgproject.content_rule_sshd_limit_user_access'
+
+###############################################################################
+# BEGIN extra fix (3 / 4) for 'xccdf_org.ssgproject.content_rule_sudo_require_authentication'
+###############################################################################
+(>&2 echo "Remediating rule: 'rule_sudo_require_authentication'"); (
+# Remediation is applicable only in certain environments
+if [ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ]; then
+
+  for f in /etc/sudoers /etc/sudoers.d/* ; do
+    if [ ! -e "$f" ] ; then
+      continue
+    fi
+    matching_list=$(grep -P '^(?!#).*[\s]+NOPASSWD[\s]*\:.*$' $f | uniq )
+    if ! test -z "$matching_list"; then
+      while IFS= read -r entry; do
+        # comment out "NOPASSWD" matches to preserve user data
+        sed -i "s/^${entry}$/# &/g" $f
+      done <<< "$matching_list"
+
+      /usr/sbin/visudo -cf $f &> /dev/null || echo "Fail to validate $f with visudo"
+    fi
+  done
+
+  for f in /etc/sudoers /etc/sudoers.d/* ; do
+    if [ ! -e "$f" ] ; then
+      continue
+    fi
+    matching_list=$(grep -P '^(?!#).*[\s]+\!authenticate.*$' $f | uniq )
+    if ! test -z "$matching_list"; then
+      while IFS= read -r entry; do
+        # comment out "!authenticate" matches to preserve user data
+        sed -i "s/^${entry}$/# &/g" $f
+      done <<< "$matching_list"
+
+      /usr/sbin/visudo -cf $f &> /dev/null || echo "Fail to validate $f with visudo"
+    fi
+  done
+
+else
+  >&2 echo 'Remediation is not applicable, nothing was done'
+fi
+) # END fix for 'xccdf_org.ssgproject.content_rule_sudo_require_authentication'
+
+###############################################################################
+# BEGIN extra fix (4 / 4) for ' xccdf_org.ssgproject.content_rule_postfix_network_listening_disabled'
+###############################################################################
+# Remediation is applicable only in certain platforms
+if [ ! -f /.dockerenv ] && [ ! -f /run/.containerenv ] && { dpkg-query --show --showformat='${db:Status-Status}\n' 'postfix' 2>/dev/null | grep -q installed; }; then
+
+var_postfix_inet_interfaces='loopback-only'
+
+if [ -e "/etc/postfix/main.cf" ] ; then
+
+    LC_ALL=C sed -i "/^\s*inet_interfaces\s\+=\s\+/Id" "/etc/postfix/main.cf"
+else
+    touch "/etc/postfix/main.cf"
+fi
+# make sure file has newline at the end
+sed -i -e '$a\' "/etc/postfix/main.cf"
+
+cp "/etc/postfix/main.cf" "/etc/postfix/main.cf.bak"
+# Insert at the end of the file
+printf '%s\n' "inet_interfaces=$var_postfix_inet_interfaces" >> "/etc/postfix/main.cf"
+# Clean up after ourselves.
+rm "/etc/postfix/main.cf.bak"
+
+systemctl restart postfix
+
+else
+    >&2 echo 'Remediation is not applicable, nothing was done'
+fi
+
+# END fix for 'xccdf_org.ssgproject.content_rule_postfix_network_listening_disabled'
+
