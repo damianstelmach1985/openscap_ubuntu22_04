@@ -1,0 +1,53 @@
+#info domeny
+dig audyty.site
+
+#pobranie plików z github'a
+git clone https://github.com/damianstelmach1985/openscap_ubuntu22_04.git
+
+#wylistowanie pobranych plików
+ls -l openscap_ubuntu22_04/
+
+#przeniesienie plików do katalogu bieżącego - katalogu domowego root'a
+mv openscap_ubuntu22_04/* .
+
+#nadanie uprawnień do wykonania skryptów
+chmod u+x *.sh
+
+#uruchomienie instalatora
+./install_open_scap_1_4_0.sh
+
+#weryfikacja dostępnych profili
+oscap info content/build/ssg-ubuntu2204-ds.xml
+
+#wygenerowanie raportu zgodnego z profilem xccdf_org.ssgproject.content_profile_cis_level2_server
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis_level2_server --results /tmp/openscap-results.xml --report /var/www/html/cis_start.html content/build/ssg-ubuntu2204-ds.xml
+
+#wygenerowanie skryptu z fix'ami dla profilu xccdf_org.ssgproject.content_profile_cis_level2_server
+oscap xccdf generate fix --fix-type bash --output lek_na_cale_zlo_cis.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_cis_level2_server /tmp/openscap-results.xml
+
+lub
+
+oscap xccdf generate fix --fix-type bash --output lek_na_cale_zlo_cis.sh --result-id xccdf_org.ssgproject.content_profile_cis_level2_server /tmp/openscap-results.xml
+
+#uruchomienie skryptu ze zmodyfikowanymi fix'ami dla profilu xccdf_org.ssgproject.content_profile_cis_level2_server
+./cis_fix1.sh
+
+#uruchomienie skryptu z ustawieniami systemu audit
+./audit.sh
+
+#wygenerowanie raportu zgodnego z profilem xccdf_org.ssgproject.content_profile_cis_level2_server po modyfikacjach
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis_level2_server --results /tmp/openscap-results.xml --report /var/www/html/cis_end.html content/build/ssg-ubuntu2204-ds.xml
+
+#wygenerowanie raportu zgodnego z profilem xccdf_org.ssgproject.content_profile_stig
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig --results /tmp/openscap-results.xml --report /var/www/html/stig_start.html content/build/ssg-ubuntu2204-ds.xml
+
+#wygenerowanie skryptu z fix'ami dla profilu xccdf_org.ssgproject.content_profile_stig
+oscap xccdf generate fix --fix-type bash --output lek_na_cale_zlo_stig.sh --result-id xccdf_org.ssgproject.content_profile_stig /tmp/openscap-results.xml
+
+#uruchomienie skryptu ze zmodyfikowanymi fix'ami dla profilu xccdf_org.ssgproject.content_profile_stig
+./stig_fix1.sh
+
+#wygenerowanie raportu zgodnego z profilem xccdf_org.ssgproject.content_profile_stig po modyfikacjach
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_stig --results /tmp/openscap-results.xml --report /var/www/html/stig_end.html content/build/ssg-ubuntu2204-ds.xml
+
+!Pamiętaj, że plik z fix'ami wygenerować można po wykonaniu raportu
